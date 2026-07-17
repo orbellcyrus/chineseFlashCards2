@@ -1,67 +1,179 @@
 'use client'
 
 import { useState } from "react"
-import  {Next, Previous, CardButton } from '@/app/ui/flashcards/buttons'
-import clsx from 'clsx';
+import { Character, HistoryEntry } from "@/app/lib/types";
+import PopUp from "./pop-up";
 
-type Card = {
-    side1:string,
-    side2:string,
-    side3:string
-}
+
 
 type FlashcardInterfaceProps = {
-  cards: Card[];
+  characters: Character[];
 };
 
-export default function FlashcardInterface({cards,}:FlashcardInterfaceProps){
+export default function FlashcardInterface({characters,}:FlashcardInterfaceProps){
+    const [side, setSide] = useState<keyof Character>("english");
     const [index, setIndex] = useState(0);
-    function handleNext() {
-        if(index>cards.length-1){
-            return;
+    const [charactersState, setCharactersState] = useState<Character[]>(characters)
+    const length = charactersState.length;
+    const [history, setHistory] = useState<HistoryEntry[]>([]);
+    const [done, setDone] = useState(false);
+    
+    
+    function handleCard() {
+        if (side === "english") {
+            setSide("pronunciation");
+        } else if (side === "pronunciation") {
+            setSide("chinese_character");
+        } else {
+            setSide("english");
         }
-        setIndex(index + 1);
     }
+
     function handlePrevious(){
-        if(index<1){
+        if(index === 0){
             return;
-        }
-        setIndex(index - 1);
-    }
-
-    const [side, setSide] = useState<keyof Card>("side1");
-    
-    function handleCard(){
-        if(side=="side3"){
-            setSide("side1");
-        }else if(side=="side1"){
-            setSide("side2");   
+            
         }else{
-            setSide("side3");
+            setIndex(index-1);
+            setHistory(prev => prev.slice(0, -1));
         }
     }
 
-    const [hasPrevious, handleHasPrevious] = useState(false)
-
-    function handleHasNext(){
-        hasPrevious ? handleHasPrevious(false) : handleHasPrevious(true);
+    function handleCorrect(){
+        console.log(index);
+        setHistory(prev => [
+                ...prev,
+                {
+                    characterId: charactersState[index].id,
+                    known: true,
+                    indexOfCharacter: index
+                },
+            ]);
+        if(index === length - 1){
+            setDone(!done);
+            return;
+        }else{
+            setIndex(index+1);
+            
+        }
     }
-    
 
+    function handleIncorrect(){
+        console.log(index);
+        setHistory(prev => [
+                ...prev,
+                {
+                    characterId: charactersState[index].id,
+                    known: false,
+                    indexOfCharacter: index
+                },
+        ]);
+        if(index === length - 1){
+            setDone(true);
+            return;
+        }else{
+            setIndex(index+1);
+        }
+    }
+
+    function restart(){
+        setCharactersState(prev =>
+        prev.filter(character => {
+            const result = history.find(
+                h => h.characterId === character.id
+            );
+
+            return result ? !result.known : true;
+        })
+        );
+        setIndex(0);
+        setDone(false);
+        setHistory([])
+    }
+
+    function restartAll(){
+        setCharactersState(characters);
+        setIndex(0);
+        setDone(false);
+        setHistory([])
+    }
+
+  
+                   
     return(
-        <div className="font-sans">
+        <div className="flex flex-col font-sans bg-white rounded-xl text-black p-2 ">
+            {done && <PopUp 
+                handleRestart={restart}
+                handleRestartAll={restartAll}
+                >
+                    <div className="flex gap-2 text-2xl">
+                        {history.map((entry) => (
+                            <div
+                                key={entry.characterId}
+                                className={`rounded flex justify-center ${
+                                    entry.known ? "bg-green-500" : "bg-red-500"
+                                }`}
+                                >
+                                <button className="p-1">
+                                    {charactersState[entry.indexOfCharacter]["chinese_character"]}
+                                </button>
+                            </div>
+                        ))}
+                    </div>
 
-            <h1>
-                {index}
-            </h1>
+                </PopUp>}
+            <div className="flex">
+                <p>
+                    {`Index: ${index+1}/${length}`+ ""}
+                </p>
 
-                <Previous onClick={handlePrevious}>
-                    previous
-                </Previous>
+                <div className="flex gap-2">
+                    {history.map((entry) => (
+                        <div
+                            key={entry.characterId}
+                            className={`w-6 h-6 rounded flex justify-center ${
+                                entry.known ? "bg-green-500" : "bg-red-500"
+                            }`}
+                            >
+                            <p>
+                                {charactersState[entry.indexOfCharacter]["chinese_character"]}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </div>
 
-                <Next onClick={handleNext}>
-                    next
-                </Next>
+
+            <button
+                className="rounded-xl hover:bg-gray-300 p-2"
+                onClick={handleCard}
+            >
+                {charactersState[index][side]}
+            </button>
+            <div>
+                <button 
+                    className="rounded-xl bg-yellow-200 hover:bg-yellow-300 p-2"
+                    onClick={handlePrevious}
+                >
+                    Previous  
+                </button>
+                
+                <button 
+                    className="rounded-xl bg-green-200 hover:bg-green-300 p-2"
+                    onClick={handleCorrect}
+                >
+                    Correct  
+                </button>
+
+                <button 
+                    className="rounded-xl bg-red-200 hover:bg-red-300 p-2"
+                    onClick={handleIncorrect}
+                >
+                    Incorrect  
+                </button>
+
+            </div>
+            
         </div>
           
     )
