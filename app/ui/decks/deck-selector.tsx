@@ -4,8 +4,7 @@ import Link from "next/link";
 import { Star } from "lucide-react"
 import { useState } from "react";
 import type { Deck } from '@/app/lib/types'
-
-type DeckSelectorProps = Deck;
+import { deleteDeck } from "@/app/lib/actions";
 
 
 export default function DeckSelector({title, creator, id}:Deck){
@@ -49,6 +48,21 @@ export default function DeckSelector({title, creator, id}:Deck){
                 <Link href={`flashcards/${id}`} className=" text-green-200 hover:scale:110 hover:text-green-400">
                         Play
                 </Link>
+
+                <form action={deleteDeck}>
+                    <input
+                    type="hidden"
+                    name="deckId"
+                    value={id}
+                    />
+                    <button
+                        className="text-red-400 hover:text-red-600"
+                        type="submit"
+                    >
+                        Delete
+                    </button>
+                </form>
+                
     
             </div>
             

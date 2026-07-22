@@ -17,3 +17,10 @@ export type HistoryEntry = {
   known: boolean;
   indexOfCharacter: number;
 };
+
+export type User = {
+  id: string;
+  username: string;
+  email: string;
+  password: string;
+};

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 export default function Navbar(){
     const pathname = usePathname();
     return(
+       
         <nav className="flex gap-6 p-4 bg-gray-800 rounded-xl m-2">
             <Link           
                 href="/" 
@@ -14,7 +15,7 @@ export default function Navbar(){
             Home
             </Link>
 
-           <Link           
+        <Link           
                 href="/decks" 
                 className={pathname === "/decks" ? "text-blue-400" : "text-white"}
             >
@@ -35,6 +36,7 @@ export default function Navbar(){
             Account
             </Link>
         </nav>
+        
     );
     
 }

@@ -1,12 +1,13 @@
 import { RotateCcw, ArrowLeft, ListMinus} from "lucide-react";
 import Link from "next/link";
 type PopUpProps ={
-    handleRestart: () => void;
-    handleRestartAll: () => void;
+    onClickRestart: () => void;
+    onClickRestartAll: () => void;
+    hasIncorrects: boolean;
     children: React.ReactNode
 }
 
-export default function PopUp({handleRestart, handleRestartAll, children }:PopUpProps){
+export default function PopUp({onClickRestart, onClickRestartAll,hasIncorrects, children }:PopUpProps){
     return(
         <div className="fixed inset-0 z-50 bg-black/50 flex flex-row items-center justify-center">
             <div className="bg-white rounded-lg p-6 flex flex-col items-center gap-2">
@@ -24,20 +25,20 @@ export default function PopUp({handleRestart, handleRestartAll, children }:PopUp
                     
                     <div className="flex flex-row justify-center items-center rounded-xl bg-yellow-300 hover:bg-yellow-400 p-2">
                         <RotateCcw></RotateCcw>
-                        <button onClick={handleRestartAll}>
-                            restart all
+                        <button onClick={onClickRestartAll}>
+                            Restart All
                         </button>
                     </div>
-                    
+
+                    {hasIncorrects &&
                     <div className="flex flex-row justify-center items-center rounded-xl bg-green-300 hover:bg-green-400 p-2">
                         <RotateCcw></RotateCcw>
-                        <button onClick={handleRestart}> 
-                            restart with incorrects
+                        <button onClick={onClickRestart}> 
+                            Restart Without Known
                         </button> 
                     </div>
+                    }                    
                 </div>
-                
-                
             </div>
         </div>
     );
